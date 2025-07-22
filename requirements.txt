@@ -1,0 +1,27 @@
+# ── Core numerical stack ───────────────────────────────────────────────────
+numpy
+scipy
+pandas
+statsmodels
+
+# ── Machine-learning / model selection ─────────────────────────────────────
+scikit-learn          # Decision trees, RF, permutation importance, RFE
+imbalanced-learn      # BalancedRandomForest, SMOTE, etc.
+boruta                # BorutaPy wrapper
+xgboost               # Optional, if you ever swap RF for gradient boosting
+shap                  # SHAP value interpretations
+
+# ── Dimensionality-reduction & visualization helpers ───────────────────────
+umap-learn
+dtreeviz              # Pretty, interactive tree plots
+matplotlib
+seaborn
+
+# ── Experiment tracking & persistence ──────────────────────────────────────
+joblib                # Save / load *.pkl models
+jupyterlab            # Notebooks / Lab interface
+
+# ── Misc utilities ─────────────────────────────────────────────────────────
+tqdm                 # Progress bars
+
+

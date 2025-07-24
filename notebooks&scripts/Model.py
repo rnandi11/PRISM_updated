@@ -3,6 +3,23 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import roc_curve, auc
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import classification_report,accuracy_score,make_scorer,roc_auc_score
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+
+from scipy.stats import randint
+from imblearn.ensemble import BalancedRandomForestClassifier
+from sklearn.model_selection import RandomizedSearchCV
+from boruta import BorutaPy
+
+import pickle
+
+import warnings
+warnings.filterwarnings('ignore')
 
 
 # -------------------------import data-------------------------------- 
@@ -37,11 +54,6 @@ print("Number of participants in each class:",df['CH'].value_counts())
 
 
 # -----------Split the data into train and test set--------------------
-
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import classification_report,accuracy_score,confusion_matrix
-
 seed=345
 
 data=df.copy()
@@ -73,20 +85,15 @@ X_test_mod.head()
 
 
 # ---------Run a Balanced Random Forest Model----------------------------
-from sklearn.ensemble import RandomForestClassifier
-from imblearn.ensemble import BalancedRandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.metrics import make_scorer, roc_auc_score, accuracy_score, classification_report
-from scipy.stats import randint
 
 # Define the hyperparameters to search for RandomForest
 param_dist = {
-    'n_estimators': randint(10, 300),  # Number of trees in the forest
-    'max_depth': randint(1, 30),  # Maximum depth of the tree
-    'min_samples_split': randint(2, 20),  # Minimum samples required to split a node
-    'min_samples_leaf': randint(1, 20),  # Minimum samples required at a leaf node
-    'max_features': ['log2'],            # Features to consider when looking for the best split
-    'bootstrap': [True],                   # Whether bootstrap samples are used when building trees
+    'n_estimators': randint(10, 300),       # Number of trees in the forest
+    'max_depth': randint(1, 30),            # Maximum depth of the tree
+    'min_samples_split': randint(2, 20),    # Minimum samples required to split a node
+    'min_samples_leaf': randint(1, 20),     # Minimum samples required at a leaf node
+    'max_features': ['log2'],               # Features to consider when looking for the best split
+    'bootstrap': [True],                    # Whether bootstrap samples are used when building trees
     'criterion': ['gini'],                  # Function to measure the quality of a split
 }
 
@@ -134,11 +141,7 @@ print(classification_report(y_test, y_pred))
 
 # ------------------------ Feature selection using Boruta -------------------------------------
 
-from boruta import BorutaPy
-from imblearn.ensemble import BalancedRandomForestClassifier
-
 # Initialize RandomForest model
-#model = BalancedRandomForestClassifier(n_jobs=-1,bootstrap=True, replacement=True,sampling_strategy='all')
 model=best_model_RF
 
 # Initialize Boruta
@@ -173,7 +176,6 @@ y_test_bor = y_test.copy()
 training_df_bor=pd.concat([X_train_bor,y_train_bor], axis=1)
 test_df_bor=pd.concat([X_test_bor,y_test_bor], axis=1)
 
-#training_df_bor.head()
 
 # ------------------------------- Retune model with selected features -----------------------
 
@@ -200,8 +202,7 @@ print(classification_report(y_test_bor, y_pred))
 
 
 # ---------------------------------- AUC, threshold calculatio and plot ------------------------------
-from sklearn.metrics import roc_curve, auc
-from sklearn.preprocessing import label_binarize
+
 
 colors = ['blue', 'red', 'green', 'purple']  # Adjust for more classes
 
@@ -233,7 +234,6 @@ plt.show()
 
 
 # --------------------------------------
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report, ConfusionMatrixDisplay
 
 # Optimal thresholds (as computed earlier)
 # Order: class 0, class 1, ..., class 5
@@ -311,7 +311,7 @@ shap.summary_plot(shap_values_class, X_test_bor)
 
 
 
-# ----------------------- Save Model ab=nd features ------------------------------------
+# ----------------------- Save Model and features ------------------------------------
 
 import pickle
 
@@ -322,11 +322,10 @@ model_package = {
 }
 
 # Save the trained model
-with open("BRF_V3_giantplt_HMDR.pkl", "wb") as f:
+with open("model.pkl", "wb") as f:
     pickle.dump(model_package, f)
 
-print("Model package saved successfully as BRF_V3_giantplt_HMDR.pkl")
-
+print("Model package saved successfully as model.pkl")
 
 
 

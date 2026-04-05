@@ -37,7 +37,7 @@ def split_data(data,seed=seed):
     return X_train,X_test,y_train,y_test
 
 
-def train_balanced_rf(X_train, y_train, seed=seed, n_iter=100):
+def train_balanced_rf(X_train, y_train, seed=seed, n_iter=500):
     """Train Balanced Random Forest with Randomized Search"""
     param_dist = {
         'n_estimators': randint(10, 300),
@@ -49,7 +49,10 @@ def train_balanced_rf(X_train, y_train, seed=seed, n_iter=100):
         'criterion': ['gini'],
     }
 
-    roc_auc_scorer = make_scorer(roc_auc_score, multi_class='ovr', needs_proba=True)
+    recall_scorer = make_scorer(
+    recall_score, 
+    average='macro'   # or 'weighted', 'micro')
+
 
     model = BalancedRandomForestClassifier(replacement=True, sampling_strategy='all', random_state=seed)
     search = RandomizedSearchCV(
@@ -58,7 +61,7 @@ def train_balanced_rf(X_train, y_train, seed=seed, n_iter=100):
         n_iter=n_iter,
         scoring=roc_auc_scorer,
         n_jobs=-1,
-        cv=5,
+        cv=10,
         random_state=seed
     )
     search.fit(X_train, y_train)
@@ -218,7 +221,7 @@ def main():
     df=pd.read_csv('UKBB_preprocessed.csv')
 
     # ---------------Create a column for presence of giant platelets-----------
-    df['giant_plt']=np.where(df['PDW']>16.5,1,0)
+    df['giant_plt']=np.where(df['PDW']>16.8,1,0)
 
 
     # -----------------Create a classification label----------------------

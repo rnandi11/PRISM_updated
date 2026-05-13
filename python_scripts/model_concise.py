@@ -50,8 +50,7 @@ def train_balanced_rf(X_train, y_train, seed=seed, n_iter=500):
     }
 
     recall_scorer = make_scorer(
-    recall_score, 
-    average='macro'   # or 'weighted', 'micro')
+    recall_score, average='macro')  # or 'weighted', 'micro'
 
 
     model = BalancedRandomForestClassifier(replacement=True, sampling_strategy='all', random_state=seed)
@@ -59,7 +58,7 @@ def train_balanced_rf(X_train, y_train, seed=seed, n_iter=500):
         model,
         param_distributions=param_dist,
         n_iter=n_iter,
-        scoring=roc_auc_scorer,
+        scoring=recall_scorer,
         n_jobs=-1,
         cv=10,
         random_state=seed
@@ -206,7 +205,7 @@ def run_pipeline(data, seed=seed, output_path="model_results.txt"):
         'features': selected_features  
     }
 
-    with open("model.pkl", "wb") as f:
+    with open("baseline_model.pkl", "wb") as f:
         pickle.dump(model_package, f)
     print("Model package saved successfully as model.pkl")
 
